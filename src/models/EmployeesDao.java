@@ -1,14 +1,15 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-package models;
 
+package models;
+ 
+import java.sql.Timestamp;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import javax.swing.JOptionPane;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -67,5 +68,122 @@ public class EmployeesDao {
         }
         return employee;
         }
+    
+        // registrar empleado
+        public boolean registerEmployeeQuery(Employees employee){
+            String query = "INSERT INTO employees (id, full_name, username, address, telephone, email, password, rol, created"
+                    + "updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            Timestamp datetime = new Timestamp(new Date().getTime());
+            
+            try {
+                conn = cn.getConnection();
+                pst = conn.prepareStatement(query);
+                pst.setInt(1, employee. getId());
+                pst.setString(2, employee.getFull_name());
+                pst.setString(3, employee.getFull_name());
+                pst.setString(4, employee.getUsername());
+                pst.setString(5, employee.getTelephone());
+                pst.setString(6, employee.getEmail());
+                pst.setString(7, employee.getPassword());
+                pst.setString(8, employee.getRol());
+                pst.setTimestamp(9, datetime);
+                pst.setTimestamp(10, datetime);
+                pst.execute();
+                return true;
+            }catch(SQLException e){
+                JOptionPane.showMessageDialog(null, "Error al registrar al empleado " + e); // null es para que se vea centrado el error
+                return false;
+            }        
+        }
+        
+        public List listEmployeesQuery(String value){
+            List<Employees>  list_employees = new ArrayList();
+            String query = "SELECT * FROM employees ORDER BY rol ASC";
+            String query_search_employee = "SELECT * FROM employees WHERE id LIKE ''%" + value + "%'"; 
+            
+            try {
+                conn = cn.getConnection();
+                if(value.equalsIgnoreCase("")){
+                    pst = conn.prepareStatement(query);
+                    rs = pst.executeQuery();
+                }else {
+                    pst = conn.prepareStatement(query_search_employee);
+                    rs = pst.executeQuery();
+                }
+                
+                while(rs.next()){
+                    Employees employee = new Employees();
+                    employee.setId(rs.getInt("id"));
+                    employee.setFull_name(rs.getString("full_name"));
+                    employee.setUsername(rs.getString("username"));
+                    employee.setAddress(rs.getString("address"));
+                    employee.setTelephone(rs.getString("telephone"));
+                    employee.setEmail(rs.getString("email"));
+                    employee.setRol(rs.getString("rol"));
+                    list_employees.add(employee);
+                    
+                }
+            }catch(SQLException e){
+                JOptionPane.showMessageDialog(null, e.toString());
+            }
+            return list_employees;
+            
+        }
+        // modificar empleado
+     
+        public boolean updateEmployeeQuery(Employees employee){
+            String query = "UPDATE employees  set full_name = ? , username = ?, address = ?, telephone = ?, email = ?, , rol = ?, "
+                    + "updated = ? WHERE id = ?";
+            
+            Timestamp datetime = new Timestamp(new Date().getTime());
+            
+            try {
+                conn = cn.getConnection();
+                pst = conn.prepareStatement(query);
+                pst.setString(1, employee.getFull_name());
+                pst.setString(2, employee.getFull_name());
+                pst.setString(3, employee.getUsername());
+                pst.setString(4, employee.getTelephone());
+                pst.setString(5, employee.getEmail());
+                pst.setString(6, employee.getRol());
+                pst.setTimestamp(7, datetime);
+                pst.setInt(8, employee.getId());
+                pst.execute();
+                return true;
+            }catch(SQLException e){
+                JOptionPane.showMessageDialog(null, "Error al modificar al empleado " + e); // null es para que se vea centrado el error
+                return false;
+            }        
+        }
+        
+        // eliminar empleado
+        
+        public boolean deleteEmployeeQuery(int id){
+            String query = "DELETE FROM employees WHERE ID = " + id;
+            
+            try {
+                conn = cn.getConnection();
+                pst = conn.prepareStatement(query);
+                pst.execute();
+                return true;
+            }catch( SQLException e){
+                JOptionPane.showMessageDialog(null, "No puede eliminar un empleado que tenga relacion con otra tabla ");
+                return false;
+            }       
+        }
+        
+        public boolean updateEmployeePassword(Employees employee){
+            String query = "UPDATE employees SET password = ? WHERE username = '" + username_user + "'";
+            try {
+                conn = cn.getConnection();
+                pst = conn.prepareStatement(query);
+                pst.setString(1, employee.getPassword());
+                pst.execute();
+                return true;
+            }catch(SQLException e){
+                JOptionPane.showMessageDialog(null, "Ha ocurrido un error al modificar la contraseña " + e);
+                return false;
+            }
+        }
+        
     }
-
